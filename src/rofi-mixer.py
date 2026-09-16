@@ -42,19 +42,19 @@ print(f"{use_hot_keys}{prompt}{keep_selection}{enable_markup}")
 
 def get_device_from_desc(description):
     res = os.popen(
-        f'pactl list {dev_type}s| grep -C2 "Description: {description}"|grep Name|cut -d: -f2|xargs'
+        f'pactl list {dev_type}s| grep -F -C2 "Description: {description}"|grep Name|cut -d: -f2|xargs'
     )
     return res.read().strip()
 
 def get_desc_from_device(device):
     res = os.popen(
-        f'pactl list {dev_type}s| grep -C2 {device} | grep -e "Description" | cut -d: -f2'
+        f'pactl list {dev_type}s| grep -F -C2 {device} | grep -e "Description" | cut -d: -f2'
     )
     return res.read().strip()
 
 def get_sink_input_from_app_name(app_name):
     res = os.popen(
-        f'pactl list sink-inputs | grep -B20 "application.name = \\"{app_name}\\"" | grep "Sink Input" | cut -d "#" -f2 | xargs'
+        f'pactl list sink-inputs | grep -F -B20 "application.name = \\"{app_name}\\"" | grep "Sink Input" | cut -d "#" -f2 | xargs'
     )
     return res.read().strip()
 
@@ -62,7 +62,7 @@ if ROFI_RETV == 1:
     ROFI_DATA = os.getenv("ROFI_DATA")
     if ROFI_DATA:
         desc = ROFI_INFO
-        device = os.popen(f'pactl list sinks| grep -C2 "Description: {desc}"|grep Name|cut -d: -f2|xargs').read().strip()
+        device = os.popen(f'pactl list sinks| grep -F -C2 "Description: {desc}"|grep Name|cut -d: -f2|xargs').read().strip()
         if ROFI_DATA:
             app_name, sink_input = ROFI_DATA.split("||")
             os.system(f'pactl move-sink-input {sink_input} "{device}"')
@@ -287,7 +287,7 @@ def list_applications():
 
 
 def build_app_sink_display(current_sink, sink_display):
-    res = os.popen(f"pactl list sinks | grep -A3 'Sink #{current_sink}' | grep -e 'Description' | cut -d: -f2")
+    res = os.popen(f"pactl list sinks | grep -F -A3 'Sink #{current_sink}' | grep -e 'Description' | cut -d: -f2")
     sink_desc = res.read().strip()
     if sink_desc:
         sink_display = f" → {sink_desc}"
